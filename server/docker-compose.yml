@@ -1,0 +1,11 @@
+services:
+  homeserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      - SERVER_PORT=${SERVER_PORT}
+    env_file:
+      - .env
