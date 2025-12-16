@@ -1,4 +1,4 @@
-package `in`.darkseid.homeserver.models
+package `in`.darkseid.homeserver.domain.models
 
 import kotlinx.serialization.Serializable
 

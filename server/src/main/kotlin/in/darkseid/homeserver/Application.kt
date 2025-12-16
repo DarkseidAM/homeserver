@@ -2,7 +2,8 @@ package `in`.darkseid.homeserver
 
 import `in`.darkseid.homeserver.di.oshiModule
 import `in`.darkseid.homeserver.di.serverModule
-import `in`.darkseid.homeserver.repository.StatsRepository
+import `in`.darkseid.homeserver.domain.repository.StatsRepository
+import `in`.darkseid.homeserver.workers.StatsWorker
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -13,6 +14,7 @@ import io.ktor.server.websocket.*
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.get
+import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import kotlin.time.Duration.Companion.seconds
@@ -38,15 +40,18 @@ fun Application.module() {
         masking = false
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
     }
+    val statsWorker by inject<StatsWorker>()
+    statsWorker.start(this)
+
     routing {
         get("/") {
             call.respondText("Ktor: ${Greeting().greet()}")
         }
-        configureStatsSocket(get())
+        configureStatsSocket(get(), statsWorker)
     }
 }
 
-fun Route.configureStatsSocket(repository: StatsRepository) {
+fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWorker) {
     webSocket("/ws/cpu") {
         println("Client connected to CPU stream")
         runCatching {
@@ -59,6 +64,16 @@ fun Route.configureStatsSocket(repository: StatsRepository) {
 
                 // Wait 1 second before next update
                 delay(1000)
+            }
+        }.onFailure {
+            println("Client disconnected: ${it.message}")
+        }
+    }
+    webSocket("/ws/system") {
+        println("Client connected to System stream")
+        runCatching {
+            statsWorker.statsFlow.collect {
+                sendSerialized(it)
             }
         }.onFailure {
             println("Client disconnected: ${it.message}")

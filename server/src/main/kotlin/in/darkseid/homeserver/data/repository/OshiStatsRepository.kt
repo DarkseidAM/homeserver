@@ -1,7 +1,7 @@
-package `in`.darkseid.homeserver.data
+package `in`.darkseid.homeserver.data.repository
 
-import `in`.darkseid.homeserver.models.CpuStats
-import `in`.darkseid.homeserver.repository.StatsRepository
+import `in`.darkseid.homeserver.domain.models.CpuStats
+import `in`.darkseid.homeserver.domain.repository.StatsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import oshi.SystemInfo
