@@ -37,11 +37,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.darkseid.homeserver"
+    namespace = "in.darkseid.homeserver"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.darkseid.homeserver"
+        applicationId = "in.darkseid.homeserver"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

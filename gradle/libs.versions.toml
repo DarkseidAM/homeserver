@@ -14,6 +14,14 @@ junit = "4.13.2"
 kotlin = "2.2.21"
 ktor = "3.3.3"
 logback = "1.5.22"
+kotlinx-serialization-json = "1.9.0"
+kotlinx-coroutines-core = "1.10.2"
+kotlinx-datetime = "0.7.1"
+oshi = "6.9.1"
+docker-java = "3.7.0"
+exposed = "0.61.0"
+sqlite-jdbc = "3.51.1.0"
+koin-bom = "4.1.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -30,6 +38,22 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
+ktor-serverWebsockets = { module = "io.ktor:ktor-server-websockets-jvm", version.ref = "ktor" }
+ktor-serverContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
+docker-java = { module = "com.github.docker-java:docker-java", version.ref = "docker-java" }
+docker-java-transport-httpclient = { module = "com.github.docker-java:docker-java-transport-httpclient5", version.ref = "docker-java" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-ktor = { module = "io.insert-koin:koin-ktor" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -39,3 +63,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

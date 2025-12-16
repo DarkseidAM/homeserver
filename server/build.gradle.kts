@@ -4,10 +4,10 @@ plugins {
     application
 }
 
-group = "com.darkseid.homeserver"
+group = "in.darkseid.homeserver"
 version = "1.0.0"
 application {
-    mainClass.set("com.darkseid.homeserver.ApplicationKt")
+    mainClass.set("in.darkseid.homeserver.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -18,6 +18,18 @@ dependencies {
     implementation(libs.logback)
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
+    implementation(libs.ktor.serverWebsockets)
+    implementation(libs.ktor.serverContentNegotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.oshi.core)
+    implementation(libs.docker.java)
+    implementation(libs.docker.java.transport.httpclient)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.sqlite.jdbc)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
 }
