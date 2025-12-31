@@ -14,6 +14,7 @@ data class ContainerStats(
 @Serializable
 data class FullSystemSnapshot(
     val timestamp: Long,
-    val cpu: CpuStats, // From previous step
+    val cpu: CpuStats,
+    val ram: RamStats,
     val containers: List<ContainerStats>
 )

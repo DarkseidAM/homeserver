@@ -3,8 +3,8 @@ package `in`.darkseid.homeserver.data.repository
 import `in`.darkseid.homeserver.data.db.HistoryTable
 import `in`.darkseid.homeserver.domain.models.FullSystemSnapshot
 import kotlinx.serialization.json.Json
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -13,10 +13,15 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class SqliteHistoryRepository {
 
     fun init() {
+        Flyway.configure()
+            .dataSource("jdbc:sqlite:data/server.db", "", "")
+            .locations("classpath:db/migrations")
+            .baselineOnMigrate(true)
+            .load()
+            .also {
+                it.migrate()
+            }
         Database.connect("jdbc:sqlite:data/server.db", "org.sqlite.JDBC")
-        transaction {
-            SchemaUtils.create(HistoryTable)
-        }
     }
 
     fun saveSnapshot(snapshot: FullSystemSnapshot) {
@@ -24,7 +29,7 @@ class SqliteHistoryRepository {
             HistoryTable.insert {
                 it[createdAt] = snapshot.timestamp
                 it[cpuLoad] = snapshot.cpu.usagePercent
-                it[memoryUsed] = 0 // Add memory to your CpuStats or SystemStats model
+                it[memoryUsed] = snapshot.ram.used
                 it[containerJson] = Json.encodeToString(snapshot.containers)
             }
         }

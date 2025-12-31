@@ -69,6 +69,18 @@ fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWo
             println("Client disconnected: ${it.message}")
         }
     }
+    webSocket("/ws/ram") {
+        println("Client connected to RAM stream")
+        runCatching {
+            while(true) {
+                val stats = repository.getRamStats()
+                sendSerialized(stats)
+                delay(1000)
+            }
+        }.onFailure {
+            println("Client disconnected: ${it.message}")
+        }
+    }
     webSocket("/ws/system") {
         println("Client connected to System stream")
         runCatching {

@@ -28,9 +28,10 @@ class StatsWorker(oshiRepo: StatsRepository, dockerRepo: DockerStatsRepository, 
 
                 // 1. Gather Data
                 val cpu = oshiStatsRepository.getCpuStats()
+                val ram = oshiStatsRepository.getRamStats()
                 val containers = dockerStatsRepository.getLatestStats()
 
-                val snapshot = FullSystemSnapshot(now, cpu, containers)
+                val snapshot = FullSystemSnapshot(now, cpu, ram, containers)
 
                 // 2. Emit to WebSockets (Every 1s)
                 statsFlow.emit(snapshot)

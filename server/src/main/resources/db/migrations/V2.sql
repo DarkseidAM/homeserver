@@ -1,0 +1,1 @@
+ALTER TABLE system_history ADD COLUMN random LONG NOT NULL DEFAULT 0;
