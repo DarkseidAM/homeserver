@@ -1,0 +1,29 @@
+name: Server CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "master" ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+jobs:
+  build:
+    name: Build Server
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build in Docker
+        # We build the image using the custom Dockerfile. 
+        # The build command runs ./gradlew :server:build inside the build process.
+        # If it fails, the docker build command will fail, failing the CI job.
+        run: docker build -f .github/docker/ci.Dockerfile .
