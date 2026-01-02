@@ -1,10 +1,13 @@
 package `in`.darkseid.homeserver
 
+import com.typesafe.config.ConfigFactory
+import `in`.darkseid.homeserver.di.configModule
 import `in`.darkseid.homeserver.di.oshiModule
 import `in`.darkseid.homeserver.di.serverModule
+import `in`.darkseid.homeserver.domain.models.AppConfig
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
 import `in`.darkseid.homeserver.workers.StatsWorker
-import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -12,6 +15,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import kotlinx.coroutines.delay
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.hocon.Hocon
+import kotlinx.serialization.hocon.decodeFromConfig
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
@@ -20,8 +26,12 @@ import org.koin.logger.slf4jLogger
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    val port = System.getenv("SERVER_PORT")?.toIntOrNull() ?: SERVER_PORT
-    embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module)
+    val rawConfig = ConfigFactory.load()
+
+    @OptIn(ExperimentalSerializationApi::class)
+    val appConfig = Hocon.decodeFromConfig<AppConfig>(rawConfig)
+
+    embeddedServer(Netty, port = appConfig.server.port, host = appConfig.server.host, module = Application::module)
         .start(wait = true)
 }
 
@@ -29,6 +39,7 @@ fun Application.module() {
     install(Koin) {
         slf4jLogger()
         modules(
+            configModule,
             serverModule,
             oshiModule
         )
@@ -72,7 +83,7 @@ fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWo
     webSocket("/ws/ram") {
         println("Client connected to RAM stream")
         runCatching {
-            while(true) {
+            while (true) {
                 val stats = repository.getRamStats()
                 sendSerialized(stats)
                 delay(1000)

@@ -23,6 +23,7 @@ exposed = "0.61.0"
 sqlite-jdbc = "3.51.1.0"
 koin-bom = "4.1.1"
 flywaydb = "11.20.0"
+kotlinx-serialization-hocon = "1.9.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -56,6 +57,7 @@ koin-core = { module = "io.insert-koin:koin-core" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywaydb" }
+kotlinx-serialization-hocon = { module = "org.jetbrains.kotlinx:kotlinx-serialization-hocon", version.ref = "kotlinx-serialization-hocon" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

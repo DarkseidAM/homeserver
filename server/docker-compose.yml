@@ -4,11 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "8081:8081"
     environment:
-      - SERVER_PORT=${SERVER_PORT}
-    env_file:
-      - .env
+      - JAVA_TOOL_OPTIONS=-Dconfig.file=/app/config/application.conf
     volumes:
       - ./server_data:/app/data
+      - ./config/application.conf:/app/config/application.conf
       - /var/run/docker.sock:/var/run/docker.sock
