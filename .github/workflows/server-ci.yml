@@ -27,3 +27,11 @@ jobs:
         # The build command runs ./gradlew :server:build inside the build process.
         # If it fails, the docker build command will fail, failing the CI job.
         run: docker build -f .github/docker/ci.Dockerfile .
+
+      - name: Send Build status
+        uses: yanzay/notify-telegram@v0.1.0
+        if: always()
+        with:
+          chat: ${{ secrets.chat }} # user id or channel name secret
+          token: ${{ secrets.token }} # token secret
+          status: ${{ job.status }} # do not modify this line
