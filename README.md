@@ -43,21 +43,6 @@ in your IDE’s toolbar or run it directly from the terminal:
   .\gradlew.bat :server:run
   ```
 
-### Dependency Verification
-
-This project uses Gradle's dependency verification to ensure the integrity of downloaded artifacts. If you add or update dependencies, you may need to update the verification metadata.
-
-To update the verification metadata (e.g., after changing `libs.versions.toml`), run:
-
-- on macOS/Linux
-  ```shell
-  ./gradlew --write-verification-metadata sha256,pgp build --refresh-dependencies --no-daemon
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat --write-verification-metadata sha256,pgp build --refresh-dependencies --no-daemon
-  ```
-
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
