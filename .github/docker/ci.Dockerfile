@@ -17,20 +17,22 @@ RUN microdnf install -y curl unzip findutils shadow-utils \
 WORKDIR /project
 
 # Copy Gradle wrapper and settings first for better caching
-COPY --chown=ciuser:ciuser gradle/ gradle/
-COPY --chown=ciuser:ciuser gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
-COPY --chown=ciuser:ciuser gradle/libs.versions.toml gradle/
+COPY gradle/ gradle/
+COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
+COPY gradle/libs.versions.toml gradle/
 
 # Give execution permission
 RUN chmod +x gradlew
 
-# Copy source code explicitly with correct ownership
-COPY --chown=ciuser:ciuser composeApp/ composeApp/
-COPY --chown=ciuser:ciuser server/ server/
-COPY --chown=ciuser:ciuser shared/ shared/
+# Copy source code explicitly
+COPY composeApp/ composeApp/
+COPY server/ server/
+COPY shared/ shared/
 
-# Ensure the user has full permissions to the project directory
-RUN chown -R ciuser:ciuser /project
+# Create necessary writable directories for Gradle and set permissions for ciuser
+# limiting write access to only what is needed for the build.
+RUN mkdir -p /project/.gradle composeApp/build server/build shared/build \
+    && chown -R ciuser:ciuser /project/.gradle composeApp/build server/build shared/build
 
 USER ciuser
 
