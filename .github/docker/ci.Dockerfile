@@ -29,6 +29,9 @@ COPY --chown=ciuser:ciuser composeApp/ composeApp/
 COPY --chown=ciuser:ciuser server/ server/
 COPY --chown=ciuser:ciuser shared/ shared/
 
+# Ensure the user has full permissions to the project directory
+RUN chown -R ciuser:ciuser /project
+
 USER ciuser
 
 # Build the server module
