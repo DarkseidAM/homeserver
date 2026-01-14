@@ -51,11 +51,11 @@ To update the verification metadata (e.g., after changing `libs.versions.toml`),
 
 - on macOS/Linux
   ```shell
-  ./gradlew --write-verification-metadata sha256 build
+  ./gradlew --write-verification-metadata sha256,pgp build --refresh-dependencies --no-daemon
   ```
 - on Windows
   ```shell
-  .\gradlew.bat --write-verification-metadata sha256 build
+  .\gradlew.bat --write-verification-metadata sha256,pgp build --refresh-dependencies --no-daemon
   ```
 
 ---

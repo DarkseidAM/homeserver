@@ -3,7 +3,8 @@ FROM container-registry.oracle.com/graalvm/jdk:21
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-RUN microdnf install -y curl unzip findutils \
+RUN microdnf install -y curl unzip findutils shadow-utils \
+    && useradd -m ciuser \
     && mkdir -p "$ANDROID_HOME/cmdline-tools" \
     && curl -fL --proto '=https' --tlsv1.2 https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o cmdline-tools.zip \
     && unzip cmdline-tools.zip -d "$ANDROID_HOME/cmdline-tools" \
@@ -16,23 +17,17 @@ RUN microdnf install -y curl unzip findutils \
 WORKDIR /project
 
 # Copy Gradle wrapper and settings first for better caching
-COPY gradle/ gradle/
-COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
-COPY gradle/libs.versions.toml gradle/
+COPY --chown=ciuser:ciuser gradle/ gradle/
+COPY --chown=ciuser:ciuser gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
+COPY --chown=ciuser:ciuser gradle/libs.versions.toml gradle/
 
 # Give execution permission
 RUN chmod +x gradlew
 
-# Create a non-root user
-RUN useradd -m ciuser
-
-# Copy source code explicitly to avoid copying sensitive or unnecessary files
-COPY composeApp/ composeApp/
-COPY server/ server/
-COPY shared/ shared/
-
-# Ensure the user has permissions to the project directory
-RUN chown -R ciuser:ciuser /project
+# Copy source code explicitly with correct ownership
+COPY --chown=ciuser:ciuser composeApp/ composeApp/
+COPY --chown=ciuser:ciuser server/ server/
+COPY --chown=ciuser:ciuser shared/ shared/
 
 USER ciuser
 
