@@ -7,11 +7,13 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
+      - '.github/workflows/sonar-analysis.yml'
   pull_request:
     branches: [ "main", "master" ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
+      - '.github/workflows/sonar-analysis.yml'
 
 jobs:
   build:
