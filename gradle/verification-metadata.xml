@@ -4,6 +4,9 @@
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
       <ignored-keys>
+         <ignored-key id="7905DE25C78AD456" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="296CD27F60EED12C" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="6A0975F8B1127B83" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="9EB80E92EB2135B1" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="ABE9F3126BB741C1" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="C92C5FEC70161C62" reason="Key couldn't be downloaded from any key server"/>
@@ -81,7 +84,6 @@
          <trusted-key id="4103C1C3F8E51C6925B5CD346A1E81B00431AB9D" group="com.github.oshi"/>
          <trusted-key id="4880ADC91C17426D0B061C89E8EBCFC35DF57B34" group="io.insert-koin"/>
          <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425" group="org.springframework" name="spring-framework-bom" version="5.3.39"/>
-         <trusted-key id="4BF79B8259007B566D2FCE82296CD27F60EED12C" group="com.google.crypto.tink" name="tink" version="1.7.0"/>
          <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest"/>
          <trusted-key id="4F7E32D440EF90A83011A8FC6425559C47CC79C4">
             <trusting group="com.sun.activation"/>
@@ -6092,6 +6094,12 @@
       <component group="org.codehaus.plexus" name="plexus" version="20">
          <artifact name="plexus-20.pom">
             <sha256 value="a7b594b002fc791733c8e94470d09045f4fd69a93ad5c375752f2057f84633b4" origin="Manual"/>
+         </artifact>
+      </component>
+
+      <component group="org.jetbrains.kotlin.plugin.compose" name="org.jetbrains.kotlin.plugin.compose.gradle.plugin" version="2.3.0">
+         <artifact name="org.jetbrains.kotlin.plugin.compose.gradle.plugin-2.3.0.pom">
+            <sha256 value="ceaee0c4f49f058833ba6153b0c84f919487d0b42c4dcfb54f8e1003948fa9af" origin="Manual"/>
          </artifact>
       </component>
    </components>
