@@ -23,10 +23,18 @@ COPY gradle/libs.versions.toml gradle/
 # Give execution permission
 RUN chmod +x gradlew
 
+# Create a non-root user
+RUN useradd -m ciuser
+
 # Copy source code explicitly to avoid copying sensitive or unnecessary files
 COPY composeApp/ composeApp/
 COPY server/ server/
 COPY shared/ shared/
+
+# Ensure the user has permissions to the project directory
+RUN chown -R ciuser:ciuser /project
+
+USER ciuser
 
 # Build the server module
 # This confirms that the environment is correct and the code compiles
