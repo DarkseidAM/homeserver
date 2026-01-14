@@ -4,10 +4,13 @@ import `in`.darkseid.homeserver.data.repository.DockerStatsRepository
 import `in`.darkseid.homeserver.data.repository.SqliteHistoryRepository
 import `in`.darkseid.homeserver.domain.models.FullSystemSnapshot
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -27,7 +30,8 @@ class StatsWorker(
     oshiRepo: StatsRepository,
     dockerRepo: DockerStatsRepository,
     historyRepo: SqliteHistoryRepository,
-    private val sqliteDataFlushRate: Int = 15
+    private val sqliteDataFlushRate: Int = 15,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : KoinComponent {
     private val oshiStatsRepository: StatsRepository = oshiRepo
     private val dockerStatsRepository: DockerStatsRepository = dockerRepo
@@ -39,7 +43,8 @@ class StatsWorker(
      * Subscribers can collect from this flow to receive real-time updates of system statistics.
      * It replays the latest emission to new subscribers.
      */
-    val statsFlow = MutableSharedFlow<FullSystemSnapshot>(replay = 1)
+    private val _statsFlow = MutableSharedFlow<FullSystemSnapshot>(replay = 1)
+    val statsFlow: SharedFlow<FullSystemSnapshot> = _statsFlow.asSharedFlow()
 
     /**
      * Starts the worker to periodically gather and process statistics.
@@ -52,7 +57,7 @@ class StatsWorker(
      * @param scope The [CoroutineScope] in which the worker coroutine will be launched.
      */
     fun start(scope: CoroutineScope) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch(dispatcher) {
             var ticks = 0
             while (isActive) {
                 val now = System.currentTimeMillis()
@@ -65,7 +70,7 @@ class StatsWorker(
                 val snapshot = FullSystemSnapshot(now, cpu, ram, containers)
 
                 // 2. Emit to WebSockets (Every 1s)
-                statsFlow.emit(snapshot)
+                _statsFlow.emit(snapshot)
 
                 // 3. Save to DB (Every [sqliteDataFlushRate]s)
                 if (ticks % sqliteDataFlushRate == 0) {

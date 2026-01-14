@@ -31,7 +31,7 @@ jobs:
         run: docker build -f .github/docker/ci.Dockerfile .
 
       - name: Send Build status
-        uses: yanzay/notify-telegram@v0.1.0
+        uses: yanzay/notify-telegram@1025564e15f68b2fcddeba37b5bfaf4033c79448 # v0.1.0
         if: always()
         with:
           chat: ${{ secrets.chat }} # user id or channel name secret

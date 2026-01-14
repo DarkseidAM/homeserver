@@ -3,18 +3,22 @@ package `in`.darkseid.homeserver.data.repository
 import `in`.darkseid.homeserver.domain.models.CpuStats
 import `in`.darkseid.homeserver.domain.models.RamStats
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import oshi.SystemInfo
 
-class OshiStatsRepository(systemInfo: SystemInfo) : StatsRepository {
+class OshiStatsRepository(
+    systemInfo: SystemInfo,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : StatsRepository {
     private val hardware = systemInfo.hardware
     private val processor = hardware.processor
     private val sensors = hardware.sensors
     private val memory = hardware.memory
 
     private var prevTicks = processor.systemCpuLoadTicks
-    override suspend fun getCpuStats() = withContext(Dispatchers.IO) {
+    override suspend fun getCpuStats() = withContext(dispatcher) {
         val currentTicks = processor.systemCpuLoadTicks
         val load = processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100
         prevTicks = currentTicks
@@ -30,7 +34,7 @@ class OshiStatsRepository(systemInfo: SystemInfo) : StatsRepository {
         )
     }
 
-    override suspend fun getRamStats() = withContext(Dispatchers.IO) {
+    override suspend fun getRamStats() = withContext(dispatcher) {
         val total = memory.total
         val available = memory.available
         val used = total - available

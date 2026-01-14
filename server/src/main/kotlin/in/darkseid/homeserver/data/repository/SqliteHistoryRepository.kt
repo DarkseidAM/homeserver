@@ -17,6 +17,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
  */
 class SqliteHistoryRepository(private val dbPath: String = "data/server.db") {
 
+    companion object {
+        private const val SEVEN_DAYS_IN_MS = 7 * 24 * 60 * 60 * 1000L
+    }
+
     /**
      * Initializes the database connection and runs migrations.
      *
@@ -32,7 +36,7 @@ class SqliteHistoryRepository(private val dbPath: String = "data/server.db") {
             .apply {
                 migrate()
             }
-        Database.connect("jdbc:sqlite:data/server.db", "org.sqlite.JDBC")
+        Database.connect("jdbc:sqlite:${dbPath}", "org.sqlite.JDBC")
     }
 
     /**
@@ -55,7 +59,7 @@ class SqliteHistoryRepository(private val dbPath: String = "data/server.db") {
      * Prunes data older than 7 days from the database.
      */
     fun pruneOldData() {
-        val cutoff = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
+        val cutoff = System.currentTimeMillis() - SEVEN_DAYS_IN_MS
         transaction {
             HistoryTable.deleteWhere { createdAt less cutoff }
         }

@@ -64,7 +64,7 @@ fun Application.module() {
 
 fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWorker) {
     webSocket("/ws/cpu") {
-        println("Client connected to CPU stream")
+        application.log.info("Client connected to CPU stream")
         runCatching {
             while (true) {
                 // Fetch data (non-blocking thanks to withContext in repo)
@@ -77,11 +77,11 @@ fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWo
                 delay(1000)
             }
         }.onFailure {
-            println("Client disconnected: ${it.message}")
+            application.log.error("Client disconnected from CPU stream: ${it.message}")
         }
     }
     webSocket("/ws/ram") {
-        println("Client connected to RAM stream")
+        application.log.info("Client connected to RAM stream")
         runCatching {
             while (true) {
                 val stats = repository.getRamStats()
@@ -89,17 +89,17 @@ fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWo
                 delay(1000)
             }
         }.onFailure {
-            println("Client disconnected: ${it.message}")
+            application.log.error("Client disconnected from RAM stream: ${it.message}")
         }
     }
     webSocket("/ws/system") {
-        println("Client connected to System stream")
+        application.log.info("Client connected to System stream")
         runCatching {
             statsWorker.statsFlow.collect {
                 sendSerialized(it)
             }
         }.onFailure {
-            println("Client disconnected: ${it.message}")
+            application.log.error("Client disconnected from System stream: ${it.message}")
         }
     }
 }

@@ -3,19 +3,15 @@ FROM container-registry.oracle.com/graalvm/jdk:21
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-RUN microdnf install -y wget unzip findutils
-
-# Install Android SDK Command Line Tools
-# Version 11.0 (11076708)
-RUN mkdir -p $ANDROID_HOME/cmdline-tools \
-    && wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip \
-    && unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools \
-    && mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest \
-    && rm cmdline-tools.zip
-
-# Accept licenses and install platform
-RUN yes | sdkmanager --licenses \
-    && sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools"
+RUN microdnf install -y curl unzip findutils \
+    && mkdir -p "$ANDROID_HOME/cmdline-tools" \
+    && curl -fL --proto '=https' --tlsv1.2 https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o cmdline-tools.zip \
+    && unzip cmdline-tools.zip -d "$ANDROID_HOME/cmdline-tools" \
+    && mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest" \
+    && rm cmdline-tools.zip \
+    && yes | sdkmanager --licenses \
+    && sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools" \
+    && microdnf clean all
 
 WORKDIR /project
 
@@ -27,9 +23,10 @@ COPY gradle/libs.versions.toml gradle/
 # Give execution permission
 RUN chmod +x gradlew
 
-# Download dependencies (this step might fail if subprojects aren't there, so we might need to copy everything)
-# To be safe and simple, we copy everything. 
-COPY . .
+# Copy source code explicitly to avoid copying sensitive or unnecessary files
+COPY composeApp/ composeApp/
+COPY server/ server/
+COPY shared/ shared/
 
 # Build the server module
 # This confirms that the environment is correct and the code compiles

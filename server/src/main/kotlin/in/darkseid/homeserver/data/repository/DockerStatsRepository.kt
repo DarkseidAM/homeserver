@@ -44,6 +44,7 @@ class DockerStatsRepository(private val dockerClient: DockerClient) : Closeable 
         val containers = dockerClient.listContainersCmd()
             .withStatusFilter(listOf("running"))
             .exec()
+            .toList()
 
         containers.forEach { container ->
             if (!activeStreams.containsKey(container.id)) {
