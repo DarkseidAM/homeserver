@@ -59,7 +59,7 @@
          <trusted-key id="0B743A794876D3C78AB542A118D239B1CBCD2236" group="^org[.]glassfish[.]jersey($|([.].*))" regex="true"/>
          <trusted-key id="0BE2178EAEF39C131BF4EDF84CC94DE9CA064EB7" group="org.jetbrains.exposed"/>
          <trusted-key id="0D35D3F60078655126908E8AF3D1600878E85A3D" group="io.netty"/>
-         <trusted-key id="1A55F091AD28C07F831FA44D7905DE25C78AD456" group="com.google.protobuf"/>
+
          <trusted-key id="2B34821418CF19CF1F2A8352953E02E4F573B46F" group="jakarta.platform"/>
          <trusted-key id="2BC55323C87186641A235F8E2499252329383F66" group="com.fasterxml.jackson"/>
          <trusted-key id="2DB4F1EF0FA761ECC4EA935C86FDC7E2A11262CB">
@@ -89,7 +89,7 @@
             <trusting group="ch.qos.logback"/>
             <trusting group="org.slf4j"/>
          </trusted-key>
-         <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1" group="^com[.]google($|([.].*))" regex="true"/>
+
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="jakarta.activation"/>
          <trusted-key id="6E7F910017655622A899639EE7D88DB8427DE651" group="com.github.docker-java"/>
          <trusted-key id="6F538074CCEBF35F28AF9B066A0975F8B1127B83" group="^org[.]jetbrains[.]kotlin($|([.].*))" regex="true"/>
@@ -99,10 +99,7 @@
          <trusted-key id="79156E0351AF8604DE9B186B09A79E1E15A04694" group="org.vafer" name="jdependency" version="2.13"/>
          <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org.bouncycastle"/>
          <trusted-key id="7E22D50A7EBD9D2CD269B2D4056ACA74D46000BF" group="io.netty"/>
-         <trusted-key id="84789D24DF77A32433CE1F079EB80E92EB2135B1">
-            <trusting group="org.apache"/>
-            <trusting group="^org[.]codehaus($|([.].*))" regex="true"/>
-         </trusted-key>
+
          <trusted-key id="8E3A02905A1AE67E7B0F9ACD3967D4EDA591B991" group="^io[.]ktor($|([.].*))" regex="true"/>
          <trusted-key id="A6D6C97108B8585F91B158748671A8DF71296252" group="com.squareup" name="javapoet" version="1.10.0"/>
          <trusted-key id="A7892505CF1A58076453E52D7999BEFBA1039E8B" group="net.bytebuddy"/>
@@ -111,10 +108,7 @@
          <trusted-key id="BCC135FC7ED8214F823D73E97FE9900F412D622E" group="com.google.flatbuffers" name="flatbuffers-java" version="1.12.0"/>
          <trusted-key id="BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="C1CBA75EC9BD0BAF8061935459E05CE618187ED4" group="org.xerial" name="sqlite-jdbc" version="3.51.1.0"/>
-         <trusted-key id="C7BE5BCC9FEC15518CFDA882B0F3710FA64900E7">
-            <trusting group="com.google.code.gson"/>
-            <trusting group="^com[.]google[.]auto($|([.].*))" regex="true"/>
-         </trusted-key>
+
          <trusted-key id="C8D37E9675158FF5B29B6D6452FC3551DA8DC57E" group="org.graalvm.buildtools"/>
          <trusted-key id="CE8075A251547BEE249BC151A2115AE15F6B8B72" group="org.apache.commons"/>
          <trusted-key id="D477D51812E692011DB11E66A6EA2E2BF22E0543" group="io.github.java-diff-utils"/>
