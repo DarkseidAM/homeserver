@@ -1,4 +1,4 @@
-FROM ghcr.io/graalvm/jdk-community:21
+FROM container-registry.oracle.com/graalvm/jdk:21
 
 WORKDIR /app
 

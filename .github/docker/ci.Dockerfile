@@ -1,9 +1,9 @@
-FROM eclipse-temurin:21-jdk-jammy
+FROM container-registry.oracle.com/graalvm/jdk:21
 
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-RUN apt-get update && apt-get install -y wget unzip
+RUN microdnf install -y wget unzip findutils
 
 # Install Android SDK Command Line Tools
 # Version 11.0 (11076708)

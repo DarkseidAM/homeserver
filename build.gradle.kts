@@ -8,4 +8,12 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.ktor) apply false
+    alias(libs.plugins.sonarqube) apply true
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "DarkseidAM_homeserver")
+        property("sonar.organization", "darkseidam")
+    }
 }
