@@ -7,14 +7,14 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.github/workflows/server-ci.yml'
+      - '.github/workflows/ci.yml'
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "development" ]
     types: [opened, synchronize, reopened]
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.github/workflows/server-ci.yml'
+      - '.github/workflows/ci.yml'
 
 jobs:
   build-and-analyze:

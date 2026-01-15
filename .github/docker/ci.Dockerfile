@@ -32,12 +32,14 @@ COPY androidApp/ androidApp/
 
 # Create necessary writable directories for Gradle and set permissions for ciuser
 # limiting write access to only what is needed for the build.
-RUN mkdir -p /project/.gradle /project/.kotlin /project/build composeApp/build server/build shared/build androidApp/build \
+RUN mkdir -p /project/.gradle /project/.kotlin /project/build \
+        composeApp/build server/build shared/build androidApp/build \
     && chown -R ciuser:ciuser \
-    /project/.gradle /project/.kotlin /project/build composeApp/build server/build shared/build androidApp/build
+        /project/.gradle /project/.kotlin /project/build \
+        composeApp/build server/build shared/build androidApp/build
 
 USER ciuser
 
-# Build the server module
+# Build the server and android modules
 # This confirms that the environment is correct and the code compiles
-RUN ./gradlew :server:build --no-daemon
+RUN ./gradlew :server:build :androidApp:assembleDebug --no-daemon

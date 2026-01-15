@@ -1,4 +1,4 @@
-name: Server CI
+name: CI
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    name: Build Server
+    name: Build Project
     runs-on: self-hosted
 
     steps:
