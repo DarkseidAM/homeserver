@@ -31,7 +31,7 @@ class StatsWorker(
     dockerRepo: DockerStatsRepository,
     historyRepo: SqliteHistoryRepository,
     private val sqliteDataFlushRate: Int = 15,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : KoinComponent {
     private val oshiStatsRepository: StatsRepository = oshiRepo
     private val dockerStatsRepository: DockerStatsRepository = dockerRepo
@@ -76,12 +76,17 @@ class StatsWorker(
                 if (ticks % sqliteDataFlushRate == 0) {
                     historyRepository.saveSnapshot(snapshot)
                     // Occasionally prune (Every hour = 3600 ticks)
-                    if (ticks % 3600 == 0) historyRepository.pruneOldData()
+                    if (ticks % PRUNE_INTERVAL == 0) historyRepository.pruneOldData()
                 }
 
                 ticks++
-                delay(1000)
+                delay(WORKER_FREQUENCY)
             }
         }
+    }
+
+    companion object {
+        private const val PRUNE_INTERVAL = 3600 // 1 hour
+        private const val WORKER_FREQUENCY = 1000L // 1 sec
     }
 }

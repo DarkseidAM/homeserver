@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @property dockerClient The [DockerClient] instance used to interact with the Docker daemon.
  */
-class DockerStatsRepository(private val dockerClient: DockerClient) : Closeable {
+class DockerStatsRepository(
+    private val dockerClient: DockerClient,
+) : Closeable {
     /**
      * Stores the latest statistics for each container, keyed by container ID.
      * Uses [ConcurrentHashMap] for thread-safe access.
@@ -41,10 +43,12 @@ class DockerStatsRepository(private val dockerClient: DockerClient) : Closeable 
      * @return A list of [ContainerStats] representing the latest state of running containers.
      */
     fun getLatestStats(): List<ContainerStats> {
-        val containers = dockerClient.listContainersCmd()
-            .withStatusFilter(listOf("running"))
-            .exec()
-            .toList()
+        val containers =
+            dockerClient
+                .listContainersCmd()
+                .withStatusFilter(listOf("running"))
+                .exec()
+                .toList()
 
         containers.forEach { container ->
             if (!activeStreams.containsKey(container.id)) {
@@ -73,39 +77,50 @@ class DockerStatsRepository(private val dockerClient: DockerClient) : Closeable 
      * @param id The ID of the container to monitor.
      * @param name The name of the container.
      */
-    private fun startMonitoring(id: String, name: String) {
-        val callback = object : ResultCallback.Adapter<Statistics>() {
-            override fun onNext(stats: Statistics?) {
-                stats?.let { s ->
-                    val totalUsage = s.cpuStats?.cpuUsage?.totalUsage
-                    val preTotalUsage = s.preCpuStats?.cpuUsage?.totalUsage
-                    val systemUsage = s.cpuStats?.systemCpuUsage
-                    val preSystemUsage = s.preCpuStats?.systemCpuUsage
-                    val onlineCpus = s.cpuStats?.onlineCpus
+    private fun startMonitoring(
+        id: String,
+        name: String,
+    ) {
+        val callback =
+            object : ResultCallback.Adapter<Statistics>() {
+                override fun onNext(stats: Statistics?) {
+                    stats?.let { s ->
+                        val totalUsage = s.cpuStats?.cpuUsage?.totalUsage
+                        val preTotalUsage = s.preCpuStats?.cpuUsage?.totalUsage
+                        val systemUsage = s.cpuStats?.systemCpuUsage
+                        val preSystemUsage = s.preCpuStats?.systemCpuUsage
+                        val onlineCpus = s.cpuStats?.onlineCpus
 
-                    // A valid CPU percentage can only be calculated if all values are present and deltas are positive.
-                    if (totalUsage != null && preTotalUsage != null && systemUsage != null && preSystemUsage != null && onlineCpus != null) {
-                        val cpuDelta = totalUsage - preTotalUsage
-                        val systemDelta = systemUsage - preSystemUsage
+                        // A valid CPU percentage can only be calculated if all values are present and deltas are positive.
+                        if (totalUsage != null &&
+                            preTotalUsage != null &&
+                            systemUsage != null &&
+                            preSystemUsage != null &&
+                            onlineCpus != null
+                        ) {
+                            val cpuDelta = totalUsage - preTotalUsage
+                            val systemDelta = systemUsage - preSystemUsage
 
-                        val cpuPercent = if (systemDelta > 0.0 && cpuDelta > 0.0) {
-                            (cpuDelta.toDouble() / systemDelta.toDouble()) * onlineCpus * 100.0
-                        } else {
-                            0.0
+                            val cpuPercent =
+                                if (systemDelta > 0.0 && cpuDelta > 0.0) {
+                                    (cpuDelta.toDouble() / systemDelta.toDouble()) * onlineCpus * CPU_PERCENTAGE_FACTOR
+                                } else {
+                                    0.0
+                                }
+
+                            liveStats[id] =
+                                ContainerStats(
+                                    id = id,
+                                    name = name.removePrefix("/"),
+                                    cpuPercent = cpuPercent,
+                                    memoryUsageBytes = s.memoryStats?.usage ?: 0,
+                                    memoryLimitBytes = s.memoryStats?.limit ?: 0,
+                                    state = "running",
+                                )
                         }
-
-                        liveStats[id] = ContainerStats(
-                            id = id,
-                            name = name.removePrefix("/"),
-                            cpuPercent = cpuPercent,
-                            memoryUsageBytes = s.memoryStats?.usage ?: 0,
-                            memoryLimitBytes = s.memoryStats?.limit ?: 0,
-                            state = "running"
-                        )
                     }
                 }
             }
-        }
         val stream = dockerClient.statsCmd(id).exec(callback)
         activeStreams[id] = stream
     }
@@ -118,5 +133,9 @@ class DockerStatsRepository(private val dockerClient: DockerClient) : Closeable 
     override fun close() {
         activeStreams.values.forEach { it.close() }
         activeStreams.clear()
+    }
+
+    companion object {
+        private const val CPU_PERCENTAGE_FACTOR = 100.0
     }
 }

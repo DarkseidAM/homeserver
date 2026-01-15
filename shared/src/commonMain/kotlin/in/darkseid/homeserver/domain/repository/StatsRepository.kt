@@ -5,5 +5,6 @@ import `in`.darkseid.homeserver.domain.models.RamStats
 
 interface StatsRepository {
     suspend fun getCpuStats(): CpuStats
+
     suspend fun getRamStats(): RamStats
 }

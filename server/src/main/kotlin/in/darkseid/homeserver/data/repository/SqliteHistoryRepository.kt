@@ -15,8 +15,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
  *
  * This repository handles initialization, saving snapshots, and pruning old data.
  */
-class SqliteHistoryRepository(private val dbPath: String = "data/server.db") {
-
+class SqliteHistoryRepository(
+    private val dbPath: String = "data/server.db",
+) {
     companion object {
         private const val SEVEN_DAYS_IN_MS = 7 * 24 * 60 * 60 * 1000L
     }
@@ -28,15 +29,16 @@ class SqliteHistoryRepository(private val dbPath: String = "data/server.db") {
      * and connects the Exposed framework to the same database.
      */
     fun init() {
-        Flyway.configure()
-            .dataSource("jdbc:sqlite:${dbPath}", "", "")
+        Flyway
+            .configure()
+            .dataSource("jdbc:sqlite:$dbPath", "", "")
             .locations("classpath:db/migrations")
             .baselineOnMigrate(true)
             .load()
             .apply {
                 migrate()
             }
-        Database.connect("jdbc:sqlite:${dbPath}", "org.sqlite.JDBC")
+        Database.connect("jdbc:sqlite:$dbPath", "org.sqlite.JDBC")
     }
 
     /**

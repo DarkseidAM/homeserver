@@ -2,7 +2,7 @@ package `in`.darkseid.homeserver.data.db
 
 import org.jetbrains.exposed.sql.Table
 
-object HistoryTable: Table("system_history") {
+object HistoryTable : Table("system_history") {
     val id = long("id").autoIncrement()
     val createdAt = long("created_at").index()
 

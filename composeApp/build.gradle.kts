@@ -10,19 +10,25 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "in.darkseid.homeserver"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+
         packaging {
             resources {
                 excludes += "/META-INF/{AL2.0,LGPL2.1}"
             }
         }
-        
+
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
-        
+
         withHostTest {}
     }
 
@@ -47,4 +53,3 @@ kotlin {
         }
     }
 }
-

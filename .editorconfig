@@ -1,0 +1,5 @@
+[*.{kt,kts}]
+# Disable the rule that flags backticks/special characters in packages
+ktlint_standard_package-name = disabled
+# Allow Uppercase functions if they have the @Composable annotation
+ktlint_function_naming_ignore_when_annotated_with = Composable

@@ -7,13 +7,22 @@ import `in`.darkseid.homeserver.di.serverModule
 import `in`.darkseid.homeserver.domain.models.AppConfig
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
 import `in`.darkseid.homeserver.workers.StatsWorker
-import io.ktor.serialization.kotlinx.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
+import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.application.log
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.application
+import io.ktor.server.websocket.pingPeriod
+import io.ktor.server.websocket.sendSerialized
+import io.ktor.server.websocket.timeout
+import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.delay
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.hocon.Hocon
@@ -31,8 +40,12 @@ fun main() {
     @OptIn(ExperimentalSerializationApi::class)
     val appConfig = Hocon.decodeFromConfig<AppConfig>(rawConfig)
 
-    embeddedServer(Netty, port = appConfig.server.port, host = appConfig.server.host, module = Application::module)
-        .start(wait = true)
+    embeddedServer(
+        Netty,
+        port = appConfig.server.port,
+        host = appConfig.server.host,
+        module = Application::module,
+    ).start(wait = true)
 }
 
 fun Application.module() {
@@ -41,7 +54,7 @@ fun Application.module() {
         modules(
             configModule,
             serverModule,
-            oshiModule
+            oshiModule,
         )
     }
     install(WebSockets) {
@@ -58,11 +71,15 @@ fun Application.module() {
         get("/") {
             call.respondText("Ktor: ${Greeting().greet()}")
         }
-        configureStatsSocket(get(), statsWorker)
+        configureStatsSocket(get(), statsWorker, get())
     }
 }
 
-fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWorker) {
+fun Route.configureStatsSocket(
+    repository: StatsRepository,
+    statsWorker: StatsWorker,
+    appConfig: AppConfig,
+) {
     webSocket("/ws/cpu") {
         application.log.info("Client connected to CPU stream")
         runCatching {
@@ -74,7 +91,7 @@ fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWo
                 sendSerialized(stats)
 
                 // Wait 1 second before next update
-                delay(1000)
+                delay(appConfig.publishing.cpuStatsFrequency)
             }
         }.onFailure {
             application.log.error("Client disconnected from CPU stream: ${it.message}")
@@ -86,7 +103,7 @@ fun Route.configureStatsSocket(repository: StatsRepository, statsWorker: StatsWo
             while (true) {
                 val stats = repository.getRamStats()
                 sendSerialized(stats)
-                delay(1000)
+                delay(appConfig.publishing.ramStatsFrequency)
             }
         }.onFailure {
             application.log.error("Client disconnected from RAM stream: ${it.message}")

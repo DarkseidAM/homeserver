@@ -10,7 +10,7 @@ on:
       - '.github/workflows/ci.yml'
   pull_request:
     branches: [ "main", "master", "development" ]
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -51,6 +51,12 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Run Detekt Code Analysis
+        run: ./gradlew detekt
+
+      - name: Run Ktlint Check
+        run: ./gradlew ktlintCheck
 
       - name: Build and analyze
         env:

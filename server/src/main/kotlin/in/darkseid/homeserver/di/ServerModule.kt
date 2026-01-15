@@ -11,19 +11,20 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
 
-val serverModule = module {
-    single<CoroutineDispatcher> { Dispatchers.IO }
-    single<StatsRepository> { OshiStatsRepository(get(), get()) }
-    single { DockerClientFactory.create() }
-    single { DockerStatsRepository(get()) }
-    single { SqliteHistoryRepository(get<AppConfig>().database.path).apply { init() } }
-    single {
-        StatsWorker(
-            get(),
-            get(),
-            get(),
-            get<AppConfig>().database.flushRate,
-            get()
-        )
+val serverModule =
+    module {
+        single<CoroutineDispatcher> { Dispatchers.IO }
+        single<StatsRepository> { OshiStatsRepository(get(), get()) }
+        single { DockerClientFactory.create() }
+        single { DockerStatsRepository(get()) }
+        single { SqliteHistoryRepository(get<AppConfig>().database.path).apply { init() } }
+        single {
+            StatsWorker(
+                get(),
+                get(),
+                get(),
+                get<AppConfig>().database.flushRate,
+                get(),
+            )
+        }
     }
-}

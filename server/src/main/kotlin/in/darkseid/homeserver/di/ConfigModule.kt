@@ -7,11 +7,12 @@ import kotlinx.serialization.hocon.Hocon
 import kotlinx.serialization.hocon.decodeFromConfig
 import org.koin.dsl.module
 
-val configModule = module {
-    single<AppConfig> {
-        val rawConfig = ConfigFactory.load()
+val configModule =
+    module {
+        single<AppConfig> {
+            val rawConfig = ConfigFactory.load()
 
-        @OptIn(ExperimentalSerializationApi::class)
-        Hocon.decodeFromConfig(rawConfig)
+            @OptIn(ExperimentalSerializationApi::class)
+            Hocon.decodeFromConfig(rawConfig)
+        }
     }
-}
