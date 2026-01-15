@@ -1,9 +1,9 @@
-FROM container-registry.oracle.com/graalvm/jdk:21
+FROM eclipse-temurin:21-jdk-jammy
 
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-RUN microdnf install -y curl unzip findutils shadow-utils \
+RUN apt-get update && apt-get install -y curl unzip findutils \
     && useradd -m ciuser \
     && mkdir -p "$ANDROID_HOME/cmdline-tools" \
     && curl -fL --proto '=https' --tlsv1.2 https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o cmdline-tools.zip \
@@ -12,7 +12,7 @@ RUN microdnf install -y curl unzip findutils shadow-utils \
     && rm cmdline-tools.zip \
     && yes | sdkmanager --licenses \
     && sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools" \
-    && microdnf clean all
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /project
 
