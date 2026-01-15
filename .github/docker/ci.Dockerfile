@@ -3,7 +3,7 @@ FROM eclipse-temurin:21-jdk-jammy
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
-RUN apt-get update && apt-get install -y curl unzip findutils \
+RUN apt-get update && apt-get --no-install-recommends install -y curl findutils unzip \
     && useradd -m ciuser \
     && mkdir -p "$ANDROID_HOME/cmdline-tools" \
     && curl -fL --proto '=https' --tlsv1.2 https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o cmdline-tools.zip \
