@@ -28,12 +28,13 @@ RUN chmod +x gradlew
 COPY composeApp/ composeApp/
 COPY server/ server/
 COPY shared/ shared/
+COPY androidApp/ androidApp/
 
 # Create necessary writable directories for Gradle and set permissions for ciuser
 # limiting write access to only what is needed for the build.
-RUN mkdir -p /project/.gradle /project/.kotlin /project/build composeApp/build server/build shared/build \
+RUN mkdir -p /project/.gradle /project/.kotlin /project/build composeApp/build server/build shared/build androidApp/build \
     && chown -R ciuser:ciuser \
-    /project/.gradle /project/.kotlin /project/build composeApp/build server/build shared/build
+    /project/.gradle /project/.kotlin /project/build composeApp/build server/build shared/build androidApp/build
 
 USER ciuser
 
