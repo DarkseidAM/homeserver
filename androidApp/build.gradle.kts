@@ -57,13 +57,13 @@ dependencies {
     implementation(projects.composeApp)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.koin.bom))
-    implementation(compose.preview)
-    debugImplementation(compose.uiTooling)
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
 }
 
 sonar {
     properties {
         property("sonar.kotlin.detekt.reportPaths", "build/reports/detekt/detekt.xml")
-        property("sonar.kotlin.ktlint.reportPaths", "build/reports/ktlint/**/*.xml")
+        property("sonar.kotlin.ktlint.reportPaths", "build/reports/ktlint/*/*.xml")
     }
 }

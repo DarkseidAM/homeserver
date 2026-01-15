@@ -47,7 +47,7 @@ subprojects {
 
     configure<DetektExtension> {
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-
+        source.setFrom(files("src"))
         // Setup report generation so Sonar can read it
         buildUponDefaultConfig = true
     }
