@@ -20,6 +20,8 @@ WORKDIR /project
 COPY gradle/ gradle/
 COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
 COPY gradle/libs.versions.toml gradle/
+COPY .editorconfig .
+COPY config/ config/
 
 # Give execution permission
 RUN chmod +x gradlew

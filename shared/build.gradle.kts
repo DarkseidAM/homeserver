@@ -38,3 +38,10 @@ kotlin {
         }
     }
 }
+
+sonar {
+    properties {
+        property("sonar.kotlin.detekt.reportPaths", "build/reports/detekt/detekt.xml")
+        property("sonar.kotlin.ktlint.reportPaths", "build/reports/ktlint/**/*.xml")
+    }
+}

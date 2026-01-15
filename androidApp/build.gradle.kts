@@ -60,3 +60,10 @@ dependencies {
     implementation(compose.preview)
     debugImplementation(compose.uiTooling)
 }
+
+sonar {
+    properties {
+        property("sonar.kotlin.detekt.reportPaths", "build/reports/detekt/detekt.xml")
+        property("sonar.kotlin.ktlint.reportPaths", "build/reports/ktlint/**/*.xml")
+    }
+}

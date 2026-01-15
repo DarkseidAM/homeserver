@@ -65,8 +65,5 @@ sonar {
     properties {
         property("sonar.projectKey", "DarkseidAM_homeserver")
         property("sonar.organization", "darkseidam")
-
-        property("sonar.kotlin.detekt.reportPaths", "*/build/reports/detekt/detekt.xml")
-        property("sonar.kotlin.ktlint.reportPaths", "*/build/reports/ktlint/**/*.xml")
     }
 }
