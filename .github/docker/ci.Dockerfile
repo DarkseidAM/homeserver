@@ -11,29 +11,34 @@ RUN apt-get update && apt-get --no-install-recommends install -y curl findutils 
     && mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest" \
     && rm cmdline-tools.zip \
     && yes | sdkmanager --licenses \
-    && sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools" \
+    && sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /project
 
-# Copy Gradle wrapper and settings first for better caching
-COPY --chown=ciuser:ciuser gradle/ gradle/
-COPY --chown=ciuser:ciuser gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
-COPY --chown=ciuser:ciuser gradle/libs.versions.toml gradle/
-COPY --chown=ciuser:ciuser .editorconfig .
-COPY --chown=ciuser:ciuser config/ config/
+# Copy Gradle wrapper and settings
+COPY gradle/ gradle/
+COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
+COPY gradle/libs.versions.toml gradle/
+COPY .editorconfig .
+COPY config/ config/
 
 # Give execution permission
 RUN chmod +x gradlew
 
 # Copy source code explicitly
-COPY --chown=ciuser:ciuser composeApp/ composeApp/
-COPY --chown=ciuser:ciuser server/ server/
-COPY --chown=ciuser:ciuser shared/ shared/
-COPY --chown=ciuser:ciuser androidApp/ androidApp/
+COPY composeApp/ composeApp/
+COPY server/ server/
+COPY shared/ shared/
+COPY androidApp/ androidApp/
 
-# Ensure the project root is writable by the ciuser
-RUN chown ciuser:ciuser /project
+# Create necessary writable directories for Gradle and set permissions for ciuser
+# This avoids giving ciuser ownership of the entire project source, which satisfies security scanners.
+RUN mkdir -p /project/.gradle /project/.kotlin /project/build \
+        composeApp/build server/build shared/build androidApp/build \
+    && chown -R ciuser:ciuser \
+        /project/.gradle /project/.kotlin /project/build \
+        composeApp/build server/build shared/build androidApp/build
 
 USER ciuser
 
