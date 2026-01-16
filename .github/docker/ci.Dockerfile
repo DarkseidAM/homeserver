@@ -17,28 +17,20 @@ RUN apt-get update && apt-get --no-install-recommends install -y curl findutils 
 WORKDIR /project
 
 # Copy Gradle wrapper and settings first for better caching
-COPY gradle/ gradle/
-COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
-COPY gradle/libs.versions.toml gradle/
-COPY .editorconfig .
-COPY config/ config/
+COPY --chown=ciuser:ciuser gradle/ gradle/
+COPY --chown=ciuser:ciuser gradlew gradlew.bat settings.gradle.kts build.gradle.kts gradle.properties ./
+COPY --chown=ciuser:ciuser gradle/libs.versions.toml gradle/
+COPY --chown=ciuser:ciuser .editorconfig .
+COPY --chown=ciuser:ciuser config/ config/
 
 # Give execution permission
 RUN chmod +x gradlew
 
 # Copy source code explicitly
-COPY composeApp/ composeApp/
-COPY server/ server/
-COPY shared/ shared/
-COPY androidApp/ androidApp/
-
-# Create necessary writable directories for Gradle and set permissions for ciuser
-# limiting write access to only what is needed for the build.
-RUN mkdir -p /project/.gradle /project/.kotlin /project/build \
-        composeApp/build server/build shared/build androidApp/build \
-    && chown -R ciuser:ciuser \
-        /project/.gradle /project/.kotlin /project/build \
-        composeApp/build server/build shared/build androidApp/build
+COPY --chown=ciuser:ciuser composeApp/ composeApp/
+COPY --chown=ciuser:ciuser server/ server/
+COPY --chown=ciuser:ciuser shared/ shared/
+COPY --chown=ciuser:ciuser androidApp/ androidApp/
 
 USER ciuser
 
