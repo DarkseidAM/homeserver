@@ -28,6 +28,7 @@ kotlinx-serialization-hocon = "1.9.0"
 sonarqube = "7.1.0.6387"
 detekt = "1.23.8"
 ktlintPlugin = "14.0.1"
+kover = "0.9.4"
 
 [libraries]
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
@@ -85,3 +86,4 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintPlugin" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

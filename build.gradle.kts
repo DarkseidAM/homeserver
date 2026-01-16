@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.sonarqube) apply true
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.kover) apply false
 }
 
 apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -27,6 +28,11 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    // Apply Kover only to non-UI modules to avoid Kover/Android variant issues
+    if (name != "composeApp" && name != "androidApp") {
+        apply(plugin = "org.jetbrains.kotlinx.kover")
+    }
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         debug.set(true)
@@ -57,6 +63,39 @@ subprojects {
             xml.required.set(true) // Required for SonarCloud
             html.required.set(true) // Nice for human reading
             txt.required.set(false)
+        }
+    }
+
+    // Configure Kover where applied
+    plugins.withType<kotlinx.kover.gradle.plugin.KoverGradlePlugin> {
+        extensions.configure<kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension> {
+            reports {
+                total {
+                    xml {
+                        onCheck = true
+                    }
+                    html {
+                        onCheck = true
+                    }
+                }
+            }
+        }
+
+        // Define the coverage report path for Sonar
+        // Using 'extra' ensures the Sonar plugin picks it up for this specific subproject
+        // extra["sonar.coverage.jacoco.xmlReportPaths"] = layout.buildDirectory.file("reports/kover/report.xml").get().asFile.absolutePath
+
+        // Directly configure Sonar properties for this subproject
+        configure<org.sonarqube.gradle.SonarExtension> {
+            properties {
+                property(
+                    "sonar.coverage.jacoco.xmlReportPaths",
+                    layout.buildDirectory
+                        .file("reports/kover/report.xml")
+                        .get()
+                        .asFile.absolutePath,
+                )
+            }
         }
     }
 }
