@@ -32,13 +32,10 @@ COPY server/ server/
 COPY shared/ shared/
 COPY androidApp/ androidApp/
 
-# Create necessary writable directories for Gradle and set permissions for ciuser
-# This avoids giving ciuser ownership of the entire project source, which satisfies security scanners.
-RUN mkdir -p /project/.gradle /project/.kotlin /project/build \
-        composeApp/build server/build shared/build androidApp/build \
-    && chown -R ciuser:ciuser \
-        /project/.gradle /project/.kotlin /project/build \
-        composeApp/build server/build shared/build androidApp/build
+# Grant full ownership of the project directory to ciuser.
+# This is required for Gradle to write build artifacts, caches, and configuration files
+# throughout the project structure. In a CI environment, this is necessary and acceptable.
+RUN chown -R ciuser:ciuser /project
 
 USER ciuser
 
