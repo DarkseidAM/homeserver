@@ -36,10 +36,3 @@ dependencies {
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
 }
-
-sonar {
-    properties {
-        property("sonar.kotlin.detekt.reportPaths", "build/reports/detekt/detekt.xml")
-        property("sonar.kotlin.ktlint.reportPaths", "build/reports/ktlint/ktlint*Check/*.xml")
-    }
-}
