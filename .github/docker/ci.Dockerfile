@@ -32,6 +32,9 @@ COPY --chown=ciuser:ciuser server/ server/
 COPY --chown=ciuser:ciuser shared/ shared/
 COPY --chown=ciuser:ciuser androidApp/ androidApp/
 
+# Ensure the project root is writable by the ciuser
+RUN chown ciuser:ciuser /project
+
 USER ciuser
 
 # Build the server and android modules
