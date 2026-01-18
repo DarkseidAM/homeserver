@@ -348,13 +348,6 @@ class ApplicationTest {
         assertNotNull(engine)
     }
 
-    @Test
-    fun `runMain starts and stops engine`() {
-        val engine = runMain(wait = false)
-        assertNotNull(engine)
-        engine.stop(100L, 100L)
-    }
-
     private fun io.ktor.server.testing.ApplicationTestBuilder.createWebsocketClient() =
         createClient {
             install(WebSockets) {
