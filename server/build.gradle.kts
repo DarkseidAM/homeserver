@@ -35,4 +35,7 @@ dependencies {
 
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

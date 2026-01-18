@@ -29,6 +29,7 @@ sonarqube = "7.1.0.6387"
 detekt = "1.23.8"
 ktlintPlugin = "14.0.1"
 kover = "0.9.4"
+mockk = "1.14.7"
 
 [libraries]
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
@@ -58,6 +59,7 @@ ktor-serverContentNegotiation = { module = "io.ktor:ktor-server-content-negotiat
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-core" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
 docker-java = { module = "com.github.docker-java:docker-java", version.ref = "docker-java" }
@@ -69,8 +71,10 @@ koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
+koin-test = { module = "io.insert-koin:koin-test" }
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywaydb" }
 kotlinx-serialization-hocon = { module = "org.jetbrains.kotlinx:kotlinx-serialization-hocon", version.ref = "kotlinx-serialization-hocon" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

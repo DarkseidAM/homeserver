@@ -17,7 +17,7 @@ val serverModule =
         single<StatsRepository> { OshiStatsRepository(get(), get()) }
         single { DockerClientFactory.create() }
         single { DockerStatsRepository(get()) }
-        single { SqliteHistoryRepository(get<AppConfig>().database.path).apply { init() } }
+        single { SqliteHistoryRepository(get<AppConfig>().database.path) }
         single {
             StatsWorker(
                 get(),

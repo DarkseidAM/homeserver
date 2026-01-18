@@ -11,7 +11,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
@@ -59,7 +58,7 @@ class StatsWorker(
     fun start(scope: CoroutineScope) {
         scope.launch(dispatcher) {
             var ticks = 0
-            while (isActive) {
+            while (true) {
                 val now = System.currentTimeMillis()
 
                 // 1. Gather Data
