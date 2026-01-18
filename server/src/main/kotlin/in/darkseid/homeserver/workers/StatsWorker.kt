@@ -7,6 +7,7 @@ import `in`.darkseid.homeserver.domain.repository.StatsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -42,7 +43,11 @@ class StatsWorker(
      * Subscribers can collect from this flow to receive real-time updates of system statistics.
      * It replays the latest emission to new subscribers.
      */
-    private val _statsFlow = MutableSharedFlow<FullSystemSnapshot>(replay = 1)
+    private val _statsFlow =
+        MutableSharedFlow<FullSystemSnapshot>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
     val statsFlow: SharedFlow<FullSystemSnapshot> = _statsFlow.asSharedFlow()
 
     /**
