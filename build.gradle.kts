@@ -106,5 +106,7 @@ sonar {
         property("sonar.organization", "darkseidam")
 
         property("sonar.kotlin.detekt.reportPaths", "build/reports/detekt/detekt.xml")
+        // Exclude UI modules from coverage as they are not instrumented by Kover
+        property("sonar.coverage.exclusions", "**/composeApp/**,**/androidApp/**")
     }
 }
