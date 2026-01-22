@@ -85,44 +85,102 @@ class DockerStatsRepository(
             object : ResultCallback.Adapter<Statistics>() {
                 override fun onNext(stats: Statistics?) {
                     stats?.let { s ->
-                        val totalUsage = s.cpuStats?.cpuUsage?.totalUsage
-                        val preTotalUsage = s.preCpuStats?.cpuUsage?.totalUsage
-                        val systemUsage = s.cpuStats?.systemCpuUsage
-                        val preSystemUsage = s.preCpuStats?.systemCpuUsage
-                        val onlineCpus = s.cpuStats?.onlineCpus
-
-                        // A valid CPU percentage can only be calculated if all values are present and deltas are positive.
-                        if (totalUsage != null &&
-                            preTotalUsage != null &&
-                            systemUsage != null &&
-                            preSystemUsage != null &&
-                            onlineCpus != null
-                        ) {
-                            val cpuDelta = totalUsage - preTotalUsage
-                            val systemDelta = systemUsage - preSystemUsage
-
-                            val cpuPercent =
-                                if (systemDelta > 0.0 && cpuDelta > 0.0) {
-                                    (cpuDelta.toDouble() / systemDelta.toDouble()) * onlineCpus * CPU_PERCENTAGE_FACTOR
-                                } else {
-                                    0.0
-                                }
-
-                            liveStats[id] =
-                                ContainerStats(
-                                    id = id,
-                                    name = name.removePrefix("/"),
-                                    cpuPercent = cpuPercent,
-                                    memoryUsageBytes = s.memoryStats?.usage ?: 0,
-                                    memoryLimitBytes = s.memoryStats?.limit ?: 0,
-                                    state = "running",
-                                )
+                        processStatistics(s, id, name)?.let { containerStats ->
+                            liveStats[id] = containerStats
                         }
                     }
                 }
             }
         val stream = dockerClient.statsCmd(id).exec(callback)
         activeStreams[id] = stream
+    }
+
+    private fun processStatistics(
+        s: Statistics,
+        id: String,
+        name: String,
+    ): ContainerStats? {
+        if (!hasValidCpuData(s)) return null
+
+        val cpuPercent = calculateCpuPercent(s)
+        val (rxBytes, txBytes) = calculateNetworkStats(s)
+        val (blockRead, blockWrite) = calculateBlockIoStats(s)
+        val pids = s.pidsStats?.current ?: 0L
+        val cpuThrottled = (s.cpuStats?.throttlingData?.throttledPeriods ?: 0L) > 0L
+        val memoryMaxUsage = s.memoryStats?.maxUsage ?: 0L
+
+        return ContainerStats(
+            id = id,
+            name = name.removePrefix("/"),
+            cpuPercent = cpuPercent,
+            memoryUsageBytes = s.memoryStats?.usage ?: 0,
+            memoryLimitBytes = s.memoryStats?.limit ?: 0,
+            state = "running",
+            networkRxBytes = rxBytes,
+            networkTxBytes = txBytes,
+            blockReadBytes = blockRead,
+            blockWriteBytes = blockWrite,
+            pids = pids,
+            cpuThrottled = cpuThrottled,
+            memoryMaxUsageBytes = memoryMaxUsage,
+        )
+    }
+
+    private fun hasValidCpuData(s: Statistics): Boolean {
+        val cpuUsage = s.cpuStats?.cpuUsage
+        val preCpuUsage = s.preCpuStats?.cpuUsage
+        return cpuUsage?.totalUsage != null &&
+            preCpuUsage?.totalUsage != null &&
+            s.cpuStats?.systemCpuUsage != null &&
+            s.preCpuStats?.systemCpuUsage != null &&
+            s.cpuStats?.onlineCpus != null
+    }
+
+    private fun calculateCpuPercent(s: Statistics): Double {
+        val cpu = s.cpuStats
+        val preCpu = s.preCpuStats
+        val usage = cpu?.cpuUsage
+        val preUsage = preCpu?.cpuUsage
+
+        val total = usage?.totalUsage
+        val preTotal = preUsage?.totalUsage
+        val system = cpu?.systemCpuUsage
+        val preSystem = preCpu?.systemCpuUsage
+        val online = cpu?.onlineCpus
+
+        return if (total != null && preTotal != null && system != null && preSystem != null && online != null) {
+            val totalDelta = total - preTotal
+            val systemDelta = system - preSystem
+            if (systemDelta > 0.0 && totalDelta > 0.0) {
+                (totalDelta.toDouble() / systemDelta.toDouble()) * online * CPU_PERCENTAGE_FACTOR
+            } else {
+                0.0
+            }
+        } else {
+            0.0
+        }
+    }
+
+    private fun calculateNetworkStats(s: Statistics): Pair<Long, Long> {
+        var rxBytes = 0L
+        var txBytes = 0L
+        s.networks?.values?.forEach { net ->
+            rxBytes += net.rxBytes ?: 0L
+            txBytes += net.txBytes ?: 0L
+        }
+        return rxBytes to txBytes
+    }
+
+    private fun calculateBlockIoStats(s: Statistics): Pair<Long, Long> {
+        var blockRead = 0L
+        var blockWrite = 0L
+        s.blkioStats?.ioServiceBytesRecursive?.forEach { entry ->
+            when (entry.op?.lowercase()) {
+                "read" -> blockRead += entry.value ?: 0L
+                "write" -> blockWrite += entry.value ?: 0L
+            }
+        }
+        return blockRead to blockWrite
     }
 
     /**
