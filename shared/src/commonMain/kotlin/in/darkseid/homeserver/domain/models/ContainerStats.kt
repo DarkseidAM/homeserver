@@ -10,6 +10,13 @@ data class ContainerStats(
     val memoryUsageBytes: Long,
     val memoryLimitBytes: Long,
     val state: String, // "running", "exited"
+    val networkRxBytes: Long = 0,
+    val networkTxBytes: Long = 0,
+    val blockReadBytes: Long = 0,
+    val blockWriteBytes: Long = 0,
+    val pids: Long = 0,
+    val cpuThrottled: Boolean = false,
+    val memoryMaxUsageBytes: Long = 0,
 )
 
 @Serializable
