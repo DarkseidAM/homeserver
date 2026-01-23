@@ -64,6 +64,7 @@ class StatsWorker(
     fun start(scope: CoroutineScope) {
         scope.launch(dispatcher + named("StatsWorker")) {
             var ticks = 0
+            val snapshotBuffer = mutableListOf<FullSystemSnapshot>()
             while (true) {
                 val now = System.currentTimeMillis()
 
@@ -76,10 +77,12 @@ class StatsWorker(
 
                 // 2. Emit to WebSockets (Every 1s)
                 _statsFlow.emit(snapshot)
+                snapshotBuffer.add(snapshot)
 
                 // 3. Save to DB (Every [sqliteDataFlushRate]s)
                 if (ticks % sqliteDataFlushRate == 0) {
-                    historyRepository.saveSnapshot(snapshot)
+                    historyRepository.saveSnapshots(snapshotBuffer)
+                    snapshotBuffer.clear()
                     // Occasionally prune (Every hour = 3600 ticks)
                     if (ticks % PRUNE_INTERVAL == 0) historyRepository.pruneOldData()
                 }

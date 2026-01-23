@@ -58,6 +58,28 @@ class SqliteHistoryRepositoryTest {
     }
 
     @Test
+    fun `saveSnapshots inserts multiple records correctly`() {
+        val now = System.currentTimeMillis()
+        val snapshot1 =
+            FullSystemSnapshot(
+                timestamp = now,
+                cpu = CpuStats("M1", 8, 8, 10.0, 45.0),
+                ram = RamStats(1000L, 500L, 500L, 50.0),
+                containers = emptyList(),
+            )
+        val snapshot2 = snapshot1.copy(timestamp = now + 1000)
+
+        repository.saveSnapshots(listOf(snapshot1, snapshot2))
+
+        transaction {
+            val rows = HistoryTable.selectAll().orderBy(HistoryTable.createdAt).toList()
+            assertEquals(2, rows.size)
+            assertEquals(snapshot1.timestamp, rows[0][HistoryTable.createdAt])
+            assertEquals(snapshot2.timestamp, rows[1][HistoryTable.createdAt])
+        }
+    }
+
+    @Test
     fun `pruneOldData removes old records`() {
         val oldTimestamp = System.currentTimeMillis() - (8 * 24 * 60 * 60 * 1000L) // 8 days ago
         val newTimestamp = System.currentTimeMillis()

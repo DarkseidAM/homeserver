@@ -98,7 +98,7 @@ class StatsWorkerTest {
             // Initial run at 0s: Save? The code says: if (ticks % flushRate == 0)
             // ticks starts at 0. So it saves at 0s.
             advanceTimeBy(100)
-            verify(exactly = 1) { historyRepo.saveSnapshot(any()) }
+            verify(exactly = 1) { historyRepo.saveSnapshots(any()) }
 
             // Advance 4 more seconds -> 4s total. Next save is at 5s (tick 5).
             // Wait, loop runs every 1s.
@@ -112,7 +112,7 @@ class StatsWorkerTest {
             advanceTimeBy(5000) // Advance 5s. Total 5.1s
 
             // Should have saved twice (at 0 and 5)
-            verify(exactly = 2) { historyRepo.saveSnapshot(any()) }
+            verify(exactly = 2) { historyRepo.saveSnapshots(any()) }
 
             job.cancel()
         }
@@ -206,6 +206,6 @@ class StatsWorkerTest {
 
             coVerify(exactly = 0) { oshiRepo.getCpuStats() }
 
-            verify(exactly = 0) { historyRepo.saveSnapshot(any()) }
+            verify(exactly = 0) { historyRepo.saveSnapshots(any()) }
         }
 }
