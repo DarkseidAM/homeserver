@@ -4,6 +4,7 @@ import `in`.darkseid.homeserver.data.repository.DockerStatsRepository
 import `in`.darkseid.homeserver.data.repository.SqliteHistoryRepository
 import `in`.darkseid.homeserver.domain.models.FullSystemSnapshot
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
+import `in`.darkseid.homeserver.utils.named
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +62,7 @@ class StatsWorker(
      * @param scope The [CoroutineScope] in which the worker coroutine will be launched.
      */
     fun start(scope: CoroutineScope) {
-        scope.launch(dispatcher) {
+        scope.launch(dispatcher + named("StatsWorker")) {
             var ticks = 0
             while (true) {
                 val now = System.currentTimeMillis()

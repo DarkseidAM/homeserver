@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.ktor.serverWebsockets)
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.kotlinx.coroutines.slf4j)
     implementation(libs.oshi.core)
     implementation(libs.docker.java)
     implementation(libs.docker.java.transport.httpclient)
