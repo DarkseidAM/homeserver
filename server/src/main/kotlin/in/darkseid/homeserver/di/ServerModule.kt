@@ -16,7 +16,7 @@ val serverModule =
         single<CoroutineDispatcher> { Dispatchers.IO }
         single<StatsRepository> { OshiStatsRepository(get(), get()) }
         single { DockerClientFactory.create() }
-        single { DockerStatsRepository(get()) }
+        single { DockerStatsRepository(get(), get()) }
         single { SqliteHistoryRepository(get<AppConfig>().database.path) }
         single {
             StatsWorker(

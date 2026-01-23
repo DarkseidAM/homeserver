@@ -4,6 +4,12 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.async.ResultCallback
 import com.github.dockerjava.api.model.Statistics
 import `in`.darkseid.homeserver.domain.models.ContainerStats
+import `in`.darkseid.homeserver.utils.named
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.Closeable
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,7 +24,10 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class DockerStatsRepository(
     private val dockerClient: DockerClient,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : Closeable {
+    private val scope = CoroutineScope(dispatcher + SupervisorJob() + named("DockerStatsRepo"))
+
     /**
      * Stores the latest statistics for each container, keyed by container ID.
      * Uses [ConcurrentHashMap] for thread-safe access.
@@ -84,9 +93,11 @@ class DockerStatsRepository(
         val callback =
             object : ResultCallback.Adapter<Statistics>() {
                 override fun onNext(stats: Statistics?) {
-                    stats?.let { s ->
-                        processStatistics(s, id, name)?.let { containerStats ->
-                            liveStats[id] = containerStats
+                    scope.launch(dispatcher + named("Docker-Stats-$name")) {
+                        stats?.let { s ->
+                            processStatistics(s, id, name)?.let { containerStats ->
+                                liveStats[id] = containerStats
+                            }
                         }
                     }
                 }
