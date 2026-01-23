@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -53,6 +54,23 @@ class SqliteHistoryRepository(
                 it[cpuLoad] = snapshot.cpu.usagePercent
                 it[memoryUsed] = snapshot.ram.used
                 it[containerJson] = Json.encodeToString(snapshot.containers)
+            }
+        }
+    }
+
+    /**
+     * Saves a list of full system snapshots to the database in a batch.
+     *
+     * @param snapshots The list of [FullSystemSnapshot] to save.
+     */
+    fun saveSnapshots(snapshots: List<FullSystemSnapshot>) {
+        if (snapshots.isEmpty()) return
+        transaction {
+            HistoryTable.batchInsert(snapshots) { snapshot ->
+                this[HistoryTable.createdAt] = snapshot.timestamp
+                this[HistoryTable.cpuLoad] = snapshot.cpu.usagePercent
+                this[HistoryTable.memoryUsed] = snapshot.ram.used
+                this[HistoryTable.containerJson] = Json.encodeToString(snapshot.containers)
             }
         }
     }
