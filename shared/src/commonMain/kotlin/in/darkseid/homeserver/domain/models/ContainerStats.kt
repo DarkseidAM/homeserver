@@ -25,4 +25,7 @@ data class FullSystemSnapshot(
     val cpu: CpuStats,
     val ram: RamStats,
     val containers: List<ContainerStats>,
+    val storage: StorageStats,
+    val network: NetworkStats,
+    val system: SystemStats,
 )

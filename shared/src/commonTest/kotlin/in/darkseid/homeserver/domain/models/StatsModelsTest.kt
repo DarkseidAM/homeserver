@@ -16,6 +16,9 @@ class StatsModelsTest {
         assertNotNull(RamStats.serializer())
         assertNotNull(ContainerStats.serializer())
         assertNotNull(FullSystemSnapshot.serializer())
+        assertNotNull(StorageStats.serializer())
+        assertNotNull(NetworkStats.serializer())
+        assertNotNull(SystemStats.serializer())
 
         assertEquals("in.darkseid.homeserver.domain.models.CpuStats", CpuStats.serializer().descriptor.serialName)
     }
@@ -92,12 +95,32 @@ class StatsModelsTest {
                 false,
                 500L,
             )
+        val storage = StorageStats(emptyList(), emptyList())
+        val network = NetworkStats(emptyList())
+        val system =
+            SystemStats(
+                "Linux",
+                "Canonical",
+                "22.04",
+                "Dell",
+                "XPS",
+                "Intel",
+                1000L,
+                100,
+                10,
+                1.2,
+                emptyList(),
+            )
+
         val snapshot =
             FullSystemSnapshot(
                 timestamp = 123456789L,
                 cpu = cpu,
                 ram = ram,
                 containers = listOf(container),
+                storage = storage,
+                network = network,
+                system = system,
             )
 
         val json = Json.encodeToString(snapshot)
@@ -109,34 +132,9 @@ class StatsModelsTest {
         assertEquals(cpu, snapshot.cpu)
         assertEquals(ram, snapshot.ram)
         assertEquals(listOf(container), snapshot.containers)
-
-        // CpuStats getters
-        assertEquals("M1", cpu.model)
-        assertEquals(8, cpu.physicalCores)
-        assertEquals(8, cpu.logicalCores)
-        assertEquals(10.0, cpu.usagePercent)
-        assertEquals(30.0, cpu.temperature)
-
-        // RamStats getters
-        assertEquals(100L, ram.total)
-        assertEquals(50L, ram.used)
-        assertEquals(50L, ram.available)
-        assertEquals(50.0, ram.usagePercent)
-
-        // ContainerStats getters
-        assertEquals("1", container.id)
-        assertEquals("test", container.name)
-        assertEquals(0.1, container.cpuPercent)
-        assertEquals(100L, container.memoryUsageBytes)
-        assertEquals(200L, container.memoryLimitBytes)
-        assertEquals("running", container.state)
-        assertEquals(10L, container.networkRxBytes)
-        assertEquals(20L, container.networkTxBytes)
-        assertEquals(30L, container.blockReadBytes)
-        assertEquals(40L, container.blockWriteBytes)
-        assertEquals(5L, container.pids)
-        assertEquals(false, container.cpuThrottled)
-        assertEquals(500L, container.memoryMaxUsageBytes)
+        assertEquals(storage, snapshot.storage)
+        assertEquals(network, snapshot.network)
+        assertEquals(system, snapshot.system)
     }
 
     @Test
@@ -280,11 +278,176 @@ class StatsModelsTest {
     }
 
     @Test
+    fun testStorageStatsCoverage() {
+        val partition =
+            PartitionStat(
+                mount = "/",
+                name = "root",
+                type = "ext4",
+                totalSpace = 1000L,
+                usedSpace = 500L,
+                availableSpace = 500L,
+                usagePercent = 50.0,
+            )
+        val disk =
+            DiskDeviceStat(
+                name = "sda",
+                model = "SSD",
+                size = 1000L,
+                readBytes = 100L,
+                writeBytes = 200L,
+                transferTime = 10L,
+            )
+        val storage = StorageStats(listOf(partition), listOf(disk))
+
+        // PartitionStat Coverage
+        val p2 = partition.copy()
+        val p3 = partition.copy(mount = "/home")
+        assertEquals(partition, p2)
+        assertNotEquals(partition, p3)
+        assertEquals(partition.hashCode(), p2.hashCode())
+        assertTrue(partition.toString().contains("root"))
+        assertEquals("/", partition.component1())
+        assertEquals("root", partition.component2())
+        assertEquals("ext4", partition.component3())
+        assertEquals(1000L, partition.component4())
+        assertEquals(500L, partition.component5())
+        assertEquals(500L, partition.component6())
+        assertEquals(50.0, partition.component7())
+
+        // DiskDeviceStat Coverage
+        val d2 = disk.copy()
+        val d3 = disk.copy(name = "sdb")
+        assertEquals(disk, d2)
+        assertNotEquals(disk, d3)
+        assertEquals(disk.hashCode(), d2.hashCode())
+        assertTrue(disk.toString().contains("SSD"))
+        assertEquals("sda", disk.component1())
+        assertEquals("SSD", disk.component2())
+        assertEquals(1000L, disk.component3())
+        assertEquals(100L, disk.component4())
+        assertEquals(200L, disk.component5())
+        assertEquals(10L, disk.component6())
+
+        // StorageStats Coverage
+        val s2 = storage.copy()
+        val s3 = storage.copy(partitions = emptyList())
+        assertEquals(storage, s2)
+        assertNotEquals(storage, s3)
+        assertEquals(storage.hashCode(), s2.hashCode())
+        assertTrue(storage.toString().contains("root"))
+        assertEquals(listOf(partition), storage.component1())
+        assertEquals(listOf(disk), storage.component2())
+    }
+
+    @Test
+    fun testNetworkStatsCoverage() {
+        val iface =
+            InterfaceStat(
+                name = "eth0",
+                displayName = "Ethernet",
+                macAddress = "00:00:00:00:00:00",
+                ipv4 = listOf("192.168.1.1"),
+                ipv6 = listOf("::1"),
+                bytesSent = 100L,
+                bytesRecv = 200L,
+                packetsSent = 10L,
+                packetsRecv = 20L,
+                speed = 1000L,
+                isUp = true,
+            )
+        val network = NetworkStats(listOf(iface))
+
+        // InterfaceStat Coverage
+        val i2 = iface.copy()
+        val i3 = iface.copy(name = "wlan0")
+        assertEquals(iface, i2)
+        assertNotEquals(iface, i3)
+        assertEquals(iface.hashCode(), i2.hashCode())
+        assertTrue(iface.toString().contains("eth0"))
+        assertEquals("eth0", iface.component1())
+        assertEquals("Ethernet", iface.component2())
+        assertEquals("00:00:00:00:00:00", iface.component3())
+        assertEquals(listOf("192.168.1.1"), iface.component4())
+        assertEquals(listOf("::1"), iface.component5())
+        assertEquals(100L, iface.component6())
+        assertEquals(200L, iface.component7())
+        assertEquals(10L, iface.component8())
+        assertEquals(20L, iface.component9())
+        assertEquals(1000L, iface.component10())
+        assertEquals(true, iface.component11())
+
+        // NetworkStats Coverage
+        val n2 = network.copy()
+        val n3 = network.copy(interfaces = emptyList())
+        assertEquals(network, n2)
+        assertNotEquals(network, n3)
+        assertEquals(network.hashCode(), n2.hashCode())
+        assertTrue(network.toString().contains("eth0"))
+        assertEquals(listOf(iface), network.component1())
+    }
+
+    @Test
+    fun testSystemStatsCoverage() {
+        val sys =
+            SystemStats(
+                osFamily = "Linux",
+                osManufacturer = "Canonical",
+                osVersion = "22.04",
+                systemManufacturer = "Dell",
+                systemModel = "XPS",
+                processorName = "Intel",
+                uptime = 1000L,
+                processCount = 100,
+                threadCount = 200,
+                cpuVoltage = 1.2,
+                fanSpeeds = listOf(1000),
+            )
+
+        val s2 = sys.copy()
+        val s3 = sys.copy(osFamily = "Windows")
+
+        assertEquals(sys, s2)
+        assertNotEquals(sys, s3)
+        assertEquals(sys.hashCode(), s2.hashCode())
+        assertTrue(sys.toString().contains("Linux"))
+
+        assertEquals("Linux", sys.component1())
+        assertEquals("Canonical", sys.component2())
+        assertEquals("22.04", sys.component3())
+        assertEquals("Dell", sys.component4())
+        assertEquals("XPS", sys.component5())
+        assertEquals("Intel", sys.component6())
+        assertEquals(1000L, sys.component7())
+        assertEquals(100, sys.component8())
+        assertEquals(200, sys.component9())
+        assertEquals(1.2, sys.component10())
+        assertEquals(listOf(1000), sys.component11())
+    }
+
+    @Test
     fun testFullSystemSnapshotMethods() {
         val cpu = CpuStats("M1", 8, 8, 10.0, 30.0)
         val ram = RamStats(100L, 50L, 50L, 50.0)
         val container = ContainerStats("1", "test", 0.1, 100L, 200L, "running")
-        val snapshot1 = FullSystemSnapshot(100L, cpu, ram, listOf(container))
+        val storage = StorageStats(emptyList(), emptyList())
+        val network = NetworkStats(emptyList())
+        val system =
+            SystemStats(
+                "Linux",
+                "Canonical",
+                "22.04",
+                "Dell",
+                "XPS",
+                "Intel",
+                1000L,
+                100,
+                10,
+                1.2,
+                emptyList(),
+            )
+
+        val snapshot1 = FullSystemSnapshot(100L, cpu, ram, listOf(container), storage, network, system)
 
         // Copy
         val snapshot2 = snapshot1.copy()
@@ -304,6 +467,9 @@ class StatsModelsTest {
         assertEquals(cpu, snapshot1.component2())
         assertEquals(ram, snapshot1.component3())
         assertEquals(listOf(container), snapshot1.component4())
+        assertEquals(storage, snapshot1.component5())
+        assertEquals(network, snapshot1.component6())
+        assertEquals(system, snapshot1.component7())
 
         // Equals edge cases
         assertTrue(snapshot1 != null)

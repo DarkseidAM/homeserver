@@ -4,7 +4,10 @@ import `in`.darkseid.homeserver.data.db.HistoryTable
 import `in`.darkseid.homeserver.domain.models.ContainerStats
 import `in`.darkseid.homeserver.domain.models.CpuStats
 import `in`.darkseid.homeserver.domain.models.FullSystemSnapshot
+import `in`.darkseid.homeserver.domain.models.NetworkStats
 import `in`.darkseid.homeserver.domain.models.RamStats
+import `in`.darkseid.homeserver.domain.models.StorageStats
+import `in`.darkseid.homeserver.domain.models.SystemStats
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
@@ -17,6 +20,23 @@ import kotlin.test.assertTrue
 class SqliteHistoryRepositoryTest {
     private lateinit var dbFile: File
     private lateinit var repository: SqliteHistoryRepository
+
+    private val dummyStorage = StorageStats(emptyList(), emptyList())
+    private val dummyNetwork = NetworkStats(emptyList())
+    private val dummySystem =
+        SystemStats(
+            "Mac",
+            "Apple",
+            "13.0",
+            "Apple",
+            "MacBook",
+            "M1",
+            100L,
+            100,
+            10,
+            1.0,
+            emptyList(),
+        )
 
     @Before
     fun setup() {
@@ -42,6 +62,9 @@ class SqliteHistoryRepositoryTest {
                     listOf(
                         ContainerStats("1", "test", 0.5, 100L, 200L, "running"),
                     ),
+                storage = dummyStorage,
+                network = dummyNetwork,
+                system = dummySystem,
             )
 
         repository.saveSnapshot(snapshot)
@@ -66,6 +89,9 @@ class SqliteHistoryRepositoryTest {
                 cpu = CpuStats("M1", 8, 8, 10.0, 45.0),
                 ram = RamStats(1000L, 500L, 500L, 50.0),
                 containers = emptyList(),
+                storage = dummyStorage,
+                network = dummyNetwork,
+                system = dummySystem,
             )
         val snapshot2 = snapshot1.copy(timestamp = now + 1000)
 
@@ -90,6 +116,9 @@ class SqliteHistoryRepositoryTest {
                 cpu = CpuStats("Old", 4, 4, 10.0, 40.0),
                 ram = RamStats(100L, 50L, 50L, 50.0),
                 containers = emptyList(),
+                storage = dummyStorage,
+                network = dummyNetwork,
+                system = dummySystem,
             )
         val newSnapshot = oldSnapshot.copy(timestamp = newTimestamp)
 

@@ -5,9 +5,12 @@ import `in`.darkseid.homeserver.domain.models.AppConfig
 import `in`.darkseid.homeserver.domain.models.CpuStats
 import `in`.darkseid.homeserver.domain.models.DatabaseConfig
 import `in`.darkseid.homeserver.domain.models.FullSystemSnapshot
+import `in`.darkseid.homeserver.domain.models.NetworkStats
 import `in`.darkseid.homeserver.domain.models.PublishingConfig
 import `in`.darkseid.homeserver.domain.models.RamStats
 import `in`.darkseid.homeserver.domain.models.ServerConfig
+import `in`.darkseid.homeserver.domain.models.StorageStats
+import `in`.darkseid.homeserver.domain.models.SystemStats
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
 import `in`.darkseid.homeserver.workers.StatsWorker
 import io.ktor.client.plugins.websocket.WebSockets
@@ -29,7 +32,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.json.Json
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -37,7 +39,20 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class ApplicationTest {
-    @AfterTest
+    // ... imports
+
+    // Helper method to create dummy snapshot
+    private fun createDummySnapshot(timestamp: Long) =
+        FullSystemSnapshot(
+            timestamp,
+            CpuStats("M1", 8, 8, 10.0, 40.0),
+            RamStats(100L, 50L, 50L, 50.0),
+            emptyList(),
+            StorageStats(emptyList(), emptyList()),
+            NetworkStats(emptyList()),
+            SystemStats("Mac", "Apple", "13.0", "Apple", "MacBook", "M1", 100L, 100, 10, 1.0, emptyList()),
+        )
+
     fun tearDown() {
         stopKoin()
         unmockkStatic("in.darkseid.homeserver.ApplicationKt")
@@ -113,13 +128,7 @@ class ApplicationTest {
         testApplication {
             val mockStatsWorker = mockk<StatsWorker>(relaxed = true)
             val flow = MutableSharedFlow<FullSystemSnapshot>(replay = 1)
-            val snapshot =
-                FullSystemSnapshot(
-                    12345L,
-                    CpuStats("M1", 8, 8, 10.0, 40.0),
-                    RamStats(100L, 50L, 50L, 50.0),
-                    emptyList(),
-                )
+            val snapshot = createDummySnapshot(12345L)
             flow.tryEmit(snapshot)
             every { mockStatsWorker.statsFlow } returns flow.asSharedFlow()
 
