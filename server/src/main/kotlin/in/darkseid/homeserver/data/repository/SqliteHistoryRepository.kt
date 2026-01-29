@@ -54,6 +54,9 @@ class SqliteHistoryRepository(
                 it[cpuLoad] = snapshot.cpu.usagePercent
                 it[memoryUsed] = snapshot.ram.used
                 it[containerJson] = Json.encodeToString(snapshot.containers)
+                it[storageJson] = Json.encodeToString(snapshot.storage)
+                it[networkJson] = Json.encodeToString(snapshot.network)
+                it[systemJson] = Json.encodeToString(snapshot.system)
             }
         }
     }
@@ -71,6 +74,9 @@ class SqliteHistoryRepository(
                 this[HistoryTable.cpuLoad] = snapshot.cpu.usagePercent
                 this[HistoryTable.memoryUsed] = snapshot.ram.used
                 this[HistoryTable.containerJson] = Json.encodeToString(snapshot.containers)
+                this[HistoryTable.storageJson] = Json.encodeToString(snapshot.storage)
+                this[HistoryTable.networkJson] = Json.encodeToString(snapshot.network)
+                this[HistoryTable.systemJson] = Json.encodeToString(snapshot.system)
             }
         }
     }

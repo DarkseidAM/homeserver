@@ -4,7 +4,10 @@ import `in`.darkseid.homeserver.data.repository.DockerStatsRepository
 import `in`.darkseid.homeserver.data.repository.SqliteHistoryRepository
 import `in`.darkseid.homeserver.domain.models.ContainerStats
 import `in`.darkseid.homeserver.domain.models.CpuStats
+import `in`.darkseid.homeserver.domain.models.NetworkStats
 import `in`.darkseid.homeserver.domain.models.RamStats
+import `in`.darkseid.homeserver.domain.models.StorageStats
+import `in`.darkseid.homeserver.domain.models.SystemStats
 import `in`.darkseid.homeserver.domain.repository.StatsRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -32,6 +35,23 @@ class StatsWorkerTest {
 
             coEvery { oshiRepo.getCpuStats() } returns CpuStats("M1", 8, 8, 10.0, 40.0)
             coEvery { oshiRepo.getRamStats() } returns RamStats(100L, 50L, 50L, 50.0)
+            coEvery { oshiRepo.getStorageStats() } returns StorageStats(emptyList(), emptyList())
+            coEvery { oshiRepo.getNetworkStats() } returns NetworkStats(emptyList())
+            coEvery { oshiRepo.getSystemStats() } returns
+                SystemStats(
+                    "A",
+                    "B",
+                    "C",
+                    "D",
+                    "E",
+                    "F",
+                    0L,
+                    0,
+                    0,
+                    0.0,
+                    emptyList(),
+                )
+
             every { dockerRepo.getLatestStats() } returns
                 listOf(
                     ContainerStats(

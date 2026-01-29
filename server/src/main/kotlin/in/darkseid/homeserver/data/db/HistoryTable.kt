@@ -10,6 +10,9 @@ object HistoryTable : Table("system_history") {
     val memoryUsed = long("memory_used")
 
     val containerJson = text("container_data")
+    val storageJson = text("storage_data")
+    val networkJson = text("network_data")
+    val systemJson = text("system_data")
 
     override val primaryKey = PrimaryKey(id)
 }
